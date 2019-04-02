@@ -38,6 +38,8 @@ define([
   }
 
 function createTagList(curSelections, listIndexes){
+  console.log(listIndexes);
+  console.log(curSelections);
   var tagList = [];
   var temp = projectsSvc.getTags()
   for (var i =0;i< listIndexes.length;i++){
@@ -50,13 +52,25 @@ function createTagList(curSelections, listIndexes){
     return [temp[curSelections].name];
   }
   else{
-    tagList.push(temp[curSelections[curSelections.length - 1]].name)
+    for (var i=0;i<curSelections.length;i++){
+      var found = false;
+      for (var j =0; j<listIndexes.length;j++){
+        if (curSelections[i] == listIndexes[j]){
+          found = true;
+        }
+      }
+      if (found ==false){
+        tagList.push(temp[curSelections[i]].name);
+      }
+    }
+  //  tagList.push(temp[curSelections[curSelections.length - 1]].name)
   }
 
   console.log(tagList)
   return tagList;
 }
   var renderProjects = function(tags, names, labels) {
+    console.log("RENDER");
     var listIndexes = resolveTagtoIndexes(tags)
     projectsPanel.html(
       compiledtemplateFn({
@@ -80,6 +94,7 @@ function createTagList(curSelections, listIndexes){
       .val(listIndexes)
       .trigger("chosen:updated")
       .change(function() {
+        console.log($(this).val());
         var tagList = createTagList($(this).val(),listIndexes);
         console.log(tagList);
         location.href = updateQueryStringParameter(
