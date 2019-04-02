@@ -37,38 +37,24 @@ define([
     return list;
   }
 
-function createTagList(curSelections, listIndexes){
-  console.log(listIndexes);
-  console.log(curSelections);
+
+function createTagList(curSelections){
   var tagList = [];
   var temp = projectsSvc.getTags()
-  for (var i =0;i< listIndexes.length;i++){
-    tagList.push(temp[listIndexes[i]].name);
-  }
-
   if (curSelections == undefined || curSelections == null || curSelections.length==0){
-    return [""];
-  }else if (curSelections.length==1){
-    return [temp[curSelections].name];
-  }
-  else{
-    for (var i=0;i<curSelections.length;i++){
-      var found = false;
-      for (var j =0; j<listIndexes.length;j++){
-        if (curSelections[i] == listIndexes[j]){
-          found = true;
-        }
-      }
-      if (found ==false){
+      return [""];
+    }else if (curSelections.length==1){
+      return [temp[curSelections].name];
+    }
+    else{
+
+      for (var i = 0;i<curSelections.length;i++){
         tagList.push(temp[curSelections[i]].name);
       }
     }
-  //  tagList.push(temp[curSelections[curSelections.length - 1]].name)
-  }
-
-  console.log(tagList)
-  return tagList;
+    return tagList;
 }
+
   var renderProjects = function(tags, names, labels) {
     console.log("RENDER");
     var listIndexes = resolveTagtoIndexes(tags)
