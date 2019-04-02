@@ -19,7 +19,45 @@ define([
       : location.href + "filters";
   };
 
+  function resolveTagtoIndexes(tags){
+    if (tags == undefined){
+      tags = []
+    }
+    console.log(tags)
+    var temp = projectsSvc.getTags()
+    console.log(temp)
+    var list = [];
+    var tagList = [];
+    for (var i =0;i< projectsSvc.getTags().length;i++){;
+      if (tags.includes(temp[i].name.toLowerCase())){
+        list.push(i)
+      }
+    }
+    console.log(list)
+    return list;
+  }
+
+function createTagList(curSelections, listIndexes){
+  var tagList = [];
+  var temp = projectsSvc.getTags()
+  for (var i =0;i< listIndexes.length;i++){
+    tagList.push(temp[listIndexes[i]].name);
+  }
+
+  if (curSelections == undefined || curSelections == null || curSelections.length==0){
+    return [""];
+  }else if (curSelections.length==1){
+    return [temp[curSelections].name];
+  }
+  else{
+    tagList.push(temp[curSelections[curSelections.length - 1]].name)
+  }
+
+  console.log(tagList)
+  return tagList;
+}
   var renderProjects = function(tags, names, labels) {
+    var listIndexes = resolveTagtoIndexes(tags)
     projectsPanel.html(
       compiledtemplateFn({
         projects: projectsSvc.get(tags, names, labels),
@@ -39,13 +77,17 @@ define([
         no_results_text: "No tags found by that name.",
         width: "95%",
       })
-      .val(tags)
+      .val(listIndexes)
       .trigger("chosen:updated")
       .change(function() {
+        var tagList = createTagList($(this).val(),listIndexes);
+        console.log(tagList);
         location.href = updateQueryStringParameter(
           getFilterUrl(),
           "tags",
-          encodeURIComponent($(this).val() || "")
+        encodeURIComponent(tagList || "")
+      // encodeURIComponent($(this).val() || "")
+
         );
       });
 
@@ -59,9 +101,11 @@ define([
       .val(names)
       .trigger("chosen:updated")
       .change(function() {
+        console.log($(this).val());
         location.href = updateQueryStringParameter(
           getFilterUrl(),
           "names",
+
           encodeURIComponent($(this).val() || "")
         );
       });
@@ -183,6 +227,7 @@ define([
       var labels = prepareForHTML(getParameterByName("labels"));
       var names = prepareForHTML(getParameterByName("names"));
       var tags = prepareForHTML(getParameterByName("tags"));
+      console.log(tags);
       renderProjects(tags, names, labels);
     });
 
@@ -314,6 +359,7 @@ define([
 
     projectsPanel.on("click", "a.remove-tag", function(e) {
       e.preventDefault();
+      console.log("TEST");
       var tags = [];
       projectsPanel
         .find("a.remove-tag")
