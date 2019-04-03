@@ -19,41 +19,78 @@ define([
       : location.href + "filters";
   };
 
-  function resolveTagtoIndexes(tags){
-    if (tags == undefined){
-      tags = []
-    }
-    console.log(tags)
-    var temp = projectsSvc.getTags()
-    console.log(temp)
-    var list = [];
-    var tagList = [];
-    for (var i =0;i< projectsSvc.getTags().length;i++){;
-      if (tags.includes(temp[i].name.toLowerCase())){
-        list.push(i)
+
+
+  //takes in list of project objects, searches list of objects for value
+  //list: list of project objects
+  //value: string of project name
+  //returns index of value in list, returns -1 if not found
+  function binarySearch(list, value) {
+      // initial values for start, middle and end
+      value = value.toLowerCase()
+      let start = 0
+      let stop = list.length - 1
+      let middle = Math.floor((start + stop) / 2)
+
+      // While the middle is not what we're looking for and the list does not have a single item
+      while (list[middle].name.toLowerCase() !== value && start < stop) {
+          if (value < list[middle].name.toLowerCase()) {
+              stop = middle - 1
+          } else {
+              start = middle + 1
+          }
+          // recalculate middle on every iteration
+          middle = Math.floor((start + stop) / 2)
       }
-    }
-    console.log(list)
-    return list;
+      // if the current middle item is what we're looking for return it's index, else return -1
+      return (list[middle].name.toLowerCase() !== value) ? -1 : middle
   }
 
 
-function createTagList(curSelections){
-  var tagList = [];
-  var temp = projectsSvc.getTags()
-  if (curSelections == undefined || curSelections == null || curSelections.length==0){
-      return [""];
-    }else if (curSelections.length==1){
-      return [temp[curSelections].name];
-    }
-    else{
 
-      for (var i = 0;i<curSelections.length;i++){
-        tagList.push(temp[curSelections[i]].name);
+  //takes list of tags (strings) E.g. [".net", "2d"] and resolves them to indexes in projectSvcs list
+  //tags: String list
+  //returns list of numbers
+  function resolveTagtoIndexes(tags) {
+      var list = [];
+
+      //temp stores list of ~1300 project objects in list
+      var temp = projectsSvc.getTags()
+
+      if (tags == undefined) {
+          tags = []
       }
+
+      for (var i = 0; i < tags.length; i++) {
+          var index = binarySearch(temp, tags[i]);
+          if (index != -1) {
+              list.push(index);
+          }
+      }
+      return list;
+  }
+
+//creates list of tags (strings) E.g. [".net", "2d"] from items currently selected in tag input field
+//curSelection: list of numbers corresponding to indexes in tag input field
+//return list of strings
+function createTagList(curSelections) {
+    var tagList = [];
+
+    //temp stores list of ~1300 project objects in list
+    var temp = projectsSvc.getTags()
+
+    if (curSelections == undefined || curSelections == null || curSelections.length == 0) {
+        return [""];
+    }
+    else {
+        for (var i = 0; i < curSelections.length; i++) {
+            tagList.push(temp[curSelections[i]].name);
+        }
     }
     return tagList;
 }
+
+
 
   var renderProjects = function(tags, names, labels) {
     console.log("RENDER");
